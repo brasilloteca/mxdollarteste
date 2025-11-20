@@ -4,19 +4,63 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>MX$ - Versão 1.0</title>
+
 <style>
   :root { font-family: Inter, Segoe UI, Helvetica, Arial, sans-serif; }
   body { background:#f6f7fb; color:#111; margin:0; padding:0; }
-  h1 { text-align:center; font-size:2rem; margin:1rem 0; }
-  main { max-width:700px; margin:auto; background:#fff; padding:1.5rem; border-radius:16px; box-shadow:0 0 10px #ccc; }
+
+  /* LOGIN */
+  #login-container {
+    max-width:400px;
+    margin:60px auto;
+    background:#fff;
+    padding:2rem;
+    border-radius:12px;
+    box-shadow:0 0 10px #bbb;
+    text-align:center;
+    display:none;
+  }
+  #login-container input {
+    width:100%; padding:0.7rem; margin-top:0.5rem;
+    border-radius:8px; border:1px solid #ccc;
+  }
+  #login-container button {
+    width:100%; padding:0.8rem; margin-top:1rem;
+    border:none; border-radius:8px; cursor:pointer; color:#fff;
+  }
+  #btnLoginEmail { background:#007bff; }
+  #btnLoginGoogle { background:#db4437; }
+  #btnRegister { background:#28a745; }
+
+  #logoutBtn {
+    display:none;
+    background:#ff4444;
+    color:#fff;
+    padding:0.6rem 1rem;
+    border:none;
+    border-radius:8px;
+    margin:10px;
+    cursor:pointer;
+  }
+
+  /* SEU APP */
+  h1 { text-align:center; font-size:2rem; margin:1rem 0; display:none; }
+  main {
+    display:none;
+    max-width:700px; margin:auto; background:#fff; padding:1.5rem;
+    border-radius:16px; box-shadow:0 0 10px #ccc;
+  }
+
   label { display:block; margin-top:1rem; font-weight:600; text-align:center; }
-  input[type="number"], input[type="text"], input[type="email"], input[type="password"] {
+  input[type="number"], input[type="text"] {
     width:100%; padding:0.5rem; font-size:1rem; border:1px solid #ccc; border-radius:8px;
     text-align:center;
   }
+
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; align-items:center; }
   button {
-    width:100%; margin-top:1rem; padding:0.75rem;
-    font-size:1rem; color:#fff; border:none; border-radius:8px; cursor:pointer;
+    width:100%; margin-top:1rem; padding:0.75rem; font-size:1rem;
+    color:#fff; border:none; border-radius:8px; cursor:pointer;
   }
   #btnCalcular { background:#007bff; }
   #btnConcluir { background:#28a745; }
@@ -26,31 +70,32 @@
   tr.win { background:#d4f8d4; }
   tr.lose { background:#f9d0d0; }
   #history { margin-top:1rem; max-height:300px; overflow:auto; }
+  #lostBox { display:flex; align-items:center; gap:0.5rem; margin-top:1rem; }
 </style>
 </head>
+
 <body>
 
-<h1>MX$ - Versão 1.0</h1>
+<!-- LOGOUT -->
+<button id="logoutBtn">Sair</button>
 
 <!-- LOGIN -->
-<h2 style="text-align:center;">Login</h2>
-<form id="loginForm">
-  <input type="email" id="loginEmail" placeholder="Email" required>
-  <input type="password" id="loginSenha" placeholder="Senha" required>
-  <button type="submit" style="background:#007bff;">Entrar</button>
-</form>
+<div id="login-container">
+  <h2>Entrar no MX$</h2>
 
-<!-- CRIAR CONTA -->
-<h2 style="text-align:center;">Criar Conta</h2>
-<form id="signupForm">
-  <input type="email" id="signupEmail" placeholder="Email" required>
-  <input type="password" id="signupSenha" placeholder="Senha" required>
-  <button type="submit" style="background:#28a745;">Criar Conta</button>
-</form>
+  <input type="email" id="email" placeholder="Seu email" />
+  <input type="password" id="senha" placeholder="Sua senha" />
 
-<!-- APLICATIVO (só aparece depois do login) -->
-<main id="appArea" style="display:none;">
+  <button id="btnLoginEmail">Entrar com Email/Senha</button>
+  <button id="btnRegister">Criar Conta</button>
+  <button id="btnLoginGoogle">Entrar com Google</button>
+</div>
 
+<!-- TÍTULO DO APP -->
+<h1 id="titulo-app">MX$ - Versão 1.0</h1>
+
+<!-- SEU APP ORIGINAL -->
+<main id="app-container">
   <div class="row">
     <div>
       <label>Saldo inicial</label>
@@ -95,67 +140,173 @@
 
 <!-- FIREBASE -->
 <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider,
+         signInWithPopup, createUserWithEmailAndPassword,
+         onAuthStateChanged, signOut }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
-  import { 
-      getAuth, 
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      onAuthStateChanged
-  } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyBzFbq5BOp_h4K5Xs9rC3utfaeSC5_i-3c",
+  authDomain: "mxdollar-versao1-0.firebaseapp.com",
+  projectId: "mxdollar-versao1-0",
+  storageBucket: "mxdollar-versao1-0.firebasestorage.app",
+  messagingSenderId: "766713134636",
+  appId: "1:766713134636:web:dcb2760fd04e2b9aafdb89",
+  measurementId: "G-SRM0J3JFFN"
+};
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBzFbq5BOp_h4K5Xs9rC3utfaeSC5_i-3c",
-    authDomain: "mxdollar-versao1-0.firebaseapp.com",
-    projectId: "mxdollar-versao1-0",
-    storageBucket: "mxdollar-versao1-0.firebasestorage.app",
-    messagingSenderId: "766713134636",
-    appId: "1:766713134636:web:dcb2760fd04e2b9aafdb89",
-    measurementId: "G-SRM0J3JFFN"
-  };
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
+const loginContainer = document.getElementById("login-container");
+const appContainer = document.getElementById("app-container");
+const tituloApp = document.getElementById("titulo-app");
+const logoutBtn = document.getElementById("logoutBtn");
 
-  // Criar Conta
-  document.getElementById("signupForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    try {
-      await createUserWithEmailAndPassword(auth,
-        document.getElementById("signupEmail").value,
-        document.getElementById("signupSenha").value
-      );
-      alert("Conta criada com sucesso!");
-    } catch (err) {
-      alert(err.message);
-    }
+document.getElementById("btnLoginEmail").onclick = () => {
+  signInWithEmailAndPassword(auth, email.value, senha.value)
+    .catch(err => alert(err.message));
+};
+
+document.getElementById("btnRegister").onclick = () => {
+  createUserWithEmailAndPassword(auth, email.value, senha.value)
+    .catch(err => alert(err.message));
+};
+
+document.getElementById("btnLoginGoogle").onclick = () => {
+  signInWithPopup(auth, provider)
+    .catch(err => alert(err.message));
+};
+
+logoutBtn.onclick = () => signOut(auth);
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    loginContainer.style.display = "none";
+    appContainer.style.display = "block";
+    tituloApp.style.display = "block";
+    logoutBtn.style.display = "block";
+  } else {
+    loginContainer.style.display = "block";
+    appContainer.style.display = "none";
+    tituloApp.style.display = "none";
+    logoutBtn.style.display = "none";
+  }
+});
+</script>
+
+<!-- SEU SCRIPT ORIGINAL -->
+<script>
+const saldoInicialEl = document.getElementById('saldoInicial');
+const saldoAtualEl = document.getElementById('saldoAtual');
+const oddAEl = document.getElementById('oddA');
+const valorTotalEl = document.getElementById('valorTotal');
+const multP1El = document.getElementById('multP1');
+const multV2El = document.getElementById('multV2');
+const chkPerdeu = document.getElementById('chkPerdeu');
+const resultadoEl = document.getElementById('resultado');
+const historyEl = document.getElementById('history');
+
+let saldoInicial = 0;
+let history = [];
+let mults = { p1: 0, v2: 0 };
+
+function save() {
+  localStorage.setItem('mx$-saldoInicial', saldoInicial);
+  localStorage.setItem('mx$-history', JSON.stringify(history));
+  localStorage.setItem('mx$-mults', JSON.stringify(mults));
+}
+
+function load() {
+  saldoInicial = parseFloat(localStorage.getItem('mx$-saldoInicial')) || 0;
+  history = JSON.parse(localStorage.getItem('mx$-history') || '[]');
+  mults = JSON.parse(localStorage.getItem('mx$-mults') || '{"p1":2.0,"v2":1.2}');
+  saldoInicialEl.value = saldoInicial.toFixed(2);
+  multP1El.value = mults.p1;
+  multV2El.value = mults.v2;
+  renderHistory();
+}
+
+function renderHistory() {
+  let saldoAtual = saldoInicial;
+  let rows = history.map(h => {
+    saldoAtual += h.resultado;
+    const classe = h.resultado >= 0 ? 'win' : 'lose';
+    return `<tr class="${classe}">
+      <td>${h.data}</td>
+      <td>${h.valor.toFixed(2)}</td>
+      <td>${h.odd}</td>
+      <td>${h.resultado.toFixed(2)}</td>
+      <td>${saldoAtual.toFixed(2)}</td>
+    </tr>`;
+  }).join('');
+  historyEl.innerHTML = `<table>
+    <tr><th>Data</th><th>Valor</th><th>Odd</th><th>Resultado</th><th>Saldo</th></tr>
+    ${rows}
+  </table>`;
+  saldoAtualEl.value = saldoAtual.toFixed(2);
+}
+
+document.getElementById('btnCalcular').onclick = () => {
+  const odd = parseFloat(oddAEl.value);
+  const valor = parseFloat(valorTotalEl.value);
+  if (!odd || !valor) return alert('Preencha todos os campos');
+  const ganho = valor * odd - valor;
+  resultadoEl.innerHTML = `<p><b>Lucro em caso de acerto:</b> R$ ${ganho.toFixed(2)}</p>`;
+};
+
+document.getElementById('btnConcluir').onclick = () => {
+  const odd = parseFloat(oddAEl.value);
+  const valor = parseFloat(valorTotalEl.value);
+  if (!odd || !valor) return alert('Preencha os campos');
+
+  const perdeu = chkPerdeu.checked;
+  const resultado = perdeu ? -valor : (valor * odd - valor);
+
+  history.push({
+    data: new Date().toLocaleString('pt-BR'),
+    odd, valor, resultado
   });
 
-  // Login
-  document.getElementById("loginForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    try {
-      await signInWithEmailAndPassword(auth,
-        document.getElementById("loginEmail").value,
-        document.getElementById("loginSenha").value
-      );
-      alert("Login realizado!");
-    } catch (err) {
-      alert(err.message);
-    }
-  });
+  let mult = perdeu ? mults.p1 : mults.v2;
 
-  // Mostrar app apenas após login
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      document.getElementById("appArea").style.display = "block";
-    }
-  });
+  let baseValor = valor;
 
+  if (history.length >= 2) {
+    const ultima = history[history.length - 1];
+    const penultima = history[history.length - 2];
+    if (ultima.resultado > 0 && penultima.resultado < 0) {
+      const ultimaVencedora = [...history]
+        .slice(0, history.length - 1)
+        .reverse()
+        .find(h => h.resultado > 0);
+      baseValor = ultimaVencedora ? ultimaVencedora.valor : history[0].valor;
+    }
+  }
+
+  valorTotalEl.value = (baseValor * mult).toFixed(2);
+  oddAEl.value = '';
+  chkPerdeu.checked = false;
+  resultadoEl.innerHTML = '';
+  renderHistory();
+  save();
+};
+
+document.getElementById('btnResetarHistorico').onclick = () => {
+  if (confirm('Deseja realmente apagar todo o histórico?')) {
+    history = [];
+    renderHistory();
+    save();
+  }
+};
+
+saldoInicialEl.oninput = () => { saldoInicial = parseFloat(saldoInicialEl.value) || 0; save(); };
+multP1El.oninput = () => { mults.p1 = parseFloat(multP1El.value) || 1; save(); };
+multV2El.oninput = () => { mults.v2 = parseFloat(multV2El.value) || 1; save(); };
+
+load();
 </script>
 
 </body>
