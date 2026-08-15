@@ -1,4 +1,5 @@
 <!doctype html>
+
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8" />
@@ -160,22 +161,20 @@ th{
   margin-top:4px
 }
 
-/* NOVO: lucro verde */
-.result-profit{
-  color:#168a35;
+/* RESULTADOS */
+.retorno-positivo{
+  color:#168a32;
   font-weight:700
 }
 
-/* NOVO: prejuízo vermelho */
-.result-loss{
+.retorno-negativo{
   color:#d62828;
   font-weight:700
 }
 
-/* NOVO: retorno total */
-.retorno-total{
-  font-weight:700;
-  margin-top:4px
+.retorno-neutro{
+  color:#333;
+  font-weight:700
 }
 
 </style>
@@ -188,21 +187,21 @@ th{
 <h1>MX$</h1>
 
 
+<!-- ========================================================= -->
 <!-- SALDO -->
+<!-- ========================================================= -->
 
 <div class="row" style="align-items:end">
 
   <div class="col small">
 
-    <label for="saldoInicial">
-      Saldo inicial (R$)
-    </label>
+    <label for="saldoInicial">Saldo inicial (R$)</label>
 
     <input
       id="saldoInicial"
-      type="number"
-      step="0.01"
-      min="0"
+      type="text"
+      inputmode="decimal"
+      value="0.00"
     />
 
   </div>
@@ -210,9 +209,7 @@ th{
 
   <div class="col small">
 
-    <label for="saldoAtual">
-      Saldo atual (R$)
-    </label>
+    <label for="saldoAtual">Saldo atual (R$)</label>
 
     <input
       id="saldoAtual"
@@ -227,11 +224,9 @@ th{
   </div>
 
 
-  <div class="col" style="flex:2">
+  <div class="col">
 
-    <label>
-      Histórico acumulado (R$)
-    </label>
+    <label>Histórico acumulado (R$)</label>
 
     <input
       id="histAcumulado"
@@ -239,30 +234,33 @@ th{
       readonly
     />
 
-    <!-- NOVO: percentual do saldo inicial -->
+  </div>
 
-    <div
+
+  <div class="col small">
+
+    <label>% do saldo inicial</label>
+
+    <input
       id="histPercentual"
-      class="small-note"
-    >
-      0,00% do saldo inicial
-    </div>
+      type="text"
+      readonly
+    />
 
   </div>
 
 </div>
 
 
-
+<!-- ========================================================= -->
 <!-- TIMES -->
+<!-- ========================================================= -->
 
 <div class="row">
 
   <div class="col">
 
-    <label>
-      Time A
-    </label>
+    <label>Time A</label>
 
     <input
       id="timeA"
@@ -275,9 +273,7 @@ th{
 
   <div class="col">
 
-    <label>
-      Time B
-    </label>
+    <label>Time B</label>
 
     <input
       id="timeB"
@@ -290,16 +286,15 @@ th{
 </div>
 
 
-
+<!-- ========================================================= -->
 <!-- ODDS -->
+<!-- ========================================================= -->
 
 <div class="row">
 
   <div class="col small">
 
-    <label>
-      Odd 1
-    </label>
+    <label>Odd 1</label>
 
     <input
       id="oddA"
@@ -313,9 +308,7 @@ th{
 
   <div class="col small">
 
-    <label>
-      Odd 2
-    </label>
+    <label>Odd 2</label>
 
     <input
       id="oddB"
@@ -329,9 +322,7 @@ th{
 
   <div class="col small">
 
-    <label>
-      Valor total a apostar (R$)
-    </label>
+    <label>Valor total a apostar (R$)</label>
 
     <input
       id="valorTotal"
@@ -345,8 +336,9 @@ th{
 </div>
 
 
-
+<!-- ========================================================= -->
 <!-- APOSTA ÚNICA -->
+<!-- ========================================================= -->
 
 <div
   class="row"
@@ -371,8 +363,9 @@ th{
 </div>
 
 
-
+<!-- ========================================================= -->
 <!-- MULTIPLICADORES + QTD PERDAS -->
+<!-- ========================================================= -->
 
 <div
   class="row"
@@ -457,8 +450,9 @@ th{
 </div>
 
 
-
+<!-- ========================================================= -->
 <!-- BOTÕES -->
+<!-- ========================================================= -->
 
 <div class="row">
 
@@ -496,21 +490,36 @@ th{
 </div>
 
 
-
+<!-- ========================================================= -->
 <!-- RESULTADOS -->
+<!-- ========================================================= -->
 
 <div class="output">
 
   <div class="summary">
 
 
+    <!-- DISTRIBUIÇÃO -->
+
+    <div class="card">
+
+      <strong>Distribuição</strong>
+
+      <div
+        id="distInfo"
+        class="small-note"
+      >
+        Nenhum cálculo ainda.
+      </div>
+
+    </div>
+
+
     <!-- 1 ACERTO -->
 
     <div class="card">
 
-      <strong>
-        Se 1 acerta
-      </strong>
+      <strong>Se 1 acerta</strong>
 
       <div
         id="oneWin"
@@ -526,9 +535,7 @@ th{
 
     <div class="card">
 
-      <strong>
-        Se 2 acertam
-      </strong>
+      <strong>Se 2 acertam</strong>
 
       <div
         id="bothWin"
@@ -545,17 +552,15 @@ th{
 </div>
 
 
-
+<!-- ========================================================= -->
 <!-- HISTÓRICO -->
+<!-- ========================================================= -->
 
-<h3>
-  Histórico
-</h3>
+<h3>Histórico</h3>
 
 <div class="small-note">
-  # | data | valor apostado | lucro/prejuízo | %
+# | data | valor apostado | lucro/prejuízo | %
 </div>
-
 
 <table id="histTable">
 
@@ -573,14 +578,11 @@ th{
 
   </thead>
 
-
   <tbody></tbody>
 
 </table>
 
-
 </div>
-
 
 
 <script>
@@ -588,102 +590,111 @@ th{
 (function(){
 
 
+/* ========================================================= */
 /* ELEMENTOS */
+/* ========================================================= */
 
-const saldoInicialEl=
+const saldoInicialEl =
   document.getElementById('saldoInicial');
 
-const saldoAtualEl=
+const saldoAtualEl =
   document.getElementById('saldoAtual');
 
-const histAcumuladoEl=
+const histAcumuladoEl =
   document.getElementById('histAcumulado');
 
-const histPercentual=
+const histPercentualEl =
   document.getElementById('histPercentual');
 
-const oddAEl=
+const oddAEl =
   document.getElementById('oddA');
 
-const oddBEl=
+const oddBEl =
   document.getElementById('oddB');
 
-const valorTotalEl=
+const valorTotalEl =
   document.getElementById('valorTotal');
 
-const qtdPerdidasEl=
+const qtdPerdidasEl =
   document.getElementById('qtdPerdidas');
 
-const qtdPerdidasNota=
+const qtdPerdidasNota =
   document.getElementById('qtdPerdidasNota');
 
-const distInfo=
+const distInfo =
   document.getElementById('distInfo');
 
-const oneWin=
+const oneWin =
   document.getElementById('oneWin');
 
-const bothWin=
+const bothWin =
   document.getElementById('bothWin');
 
-const histTbody=
+const histTbody =
   document.querySelector('#histTable tbody');
 
-const mult2Perdas=
+const mult2Perdas =
   document.getElementById('mult2Perdas');
 
-const mult1Perda=
+const mult1Perda =
   document.getElementById('mult1Perda');
 
-const mult2Vitorias=
+const mult2Vitorias =
   document.getElementById('mult2Vitorias');
 
-const modoUnicoEl=
+const modoUnicoEl =
   document.getElementById('modoUnico');
 
-const btnResetAposta=
+const btnResetAposta =
   document.getElementById('btnResetAposta');
 
 
+/* ========================================================= */
+/* CHAVES LOCALSTORAGE */
+/* ========================================================= */
 
-/* CHAVES DO LOCALSTORAGE */
-
-const KEY_SALDO=
+const KEY_SALDO =
   'mx_saldo';
 
-const KEY_HIST=
+const KEY_HIST =
   'mx_hist';
 
-const KEY_MULT=
+const KEY_MULT =
   'mx_mults';
 
-const KEY_UNDO=
+const KEY_UNDO =
   'mx_undo_apostas';
 
-const KEY_VALOR_TOTAL=
-  'mx_valor_total';
+/*
+ * NOVO:
+ * Armazena o valor da próxima aposta.
+ */
+const KEY_VALOR_APOSTA =
+  'mx_valor_aposta';
 
 
-
+/* ========================================================= */
 /* VARIÁVEIS */
+/* ========================================================= */
 
-let saldoInicial=0;
+let saldoInicial = 0;
 
-let history=[];
+let history = [];
 
-let mults={
+let mults = {
   p2:1,
   p1:1,
   v2:1
 };
 
-let undoStates=[];
+let undoStates = [];
 
 
-
+/* ========================================================= */
 /* FORMATAÇÃO */
+/* ========================================================= */
 
-const fmt=v=>
+const fmt = v =>
   Number(v).toLocaleString(
     'pt-BR',
     {
@@ -693,12 +704,13 @@ const fmt=v=>
   );
 
 
-const now=()=>
+const now = () =>
   new Date().toLocaleString('pt-BR');
 
 
-
-/* SALVAR */
+/* ========================================================= */
+/* SALVAR DADOS */
+/* ========================================================= */
 
 function save(){
 
@@ -723,72 +735,88 @@ function save(){
   );
 
   /*
-   * Valor da próxima aposta
+   * NOVO:
+   * Salva permanentemente o valor da próxima aposta.
    */
   localStorage.setItem(
-    KEY_VALOR_TOTAL,
-    valorTotalEl.value
+    KEY_VALOR_APOSTA,
+    valorTotalEl.value || ''
   );
 
 }
 
 
-
-/* CARREGAR */
+/* ========================================================= */
+/* CARREGAR DADOS */
+/* ========================================================= */
 
 function load(){
 
-  saldoInicial=
+  saldoInicial =
     parseFloat(
       localStorage.getItem(KEY_SALDO)
-    )||0;
+    ) || 0;
 
 
-  history=
+  history =
     JSON.parse(
-      localStorage.getItem(KEY_HIST)||'[]'
+      localStorage.getItem(KEY_HIST) || '[]'
     );
 
 
-  mults=
+  mults =
     JSON.parse(
-      localStorage.getItem(KEY_MULT)||
+      localStorage.getItem(
+        KEY_MULT
+      ) ||
       '{"p2":1,"p1":1,"v2":1}'
     );
 
 
-  undoStates=
+  undoStates =
     JSON.parse(
-      localStorage.getItem(KEY_UNDO)||'[]'
+      localStorage.getItem(
+        KEY_UNDO
+      ) || '[]'
     );
 
 
   /*
-   * SALDO INICIAL
-   *
-   * Sempre mostrado com 2 casas.
+   * NOVO:
+   * Recupera o valor da próxima aposta.
    */
+  const valorSalvo =
+    localStorage.getItem(
+      KEY_VALOR_APOSTA
+    );
 
-  saldoInicialEl.value=
-    saldoInicial.toFixed(2);
 
+  if(
+    valorSalvo !== null &&
+    valorSalvo !== ''
+  ){
 
-  mult2Perdas.value=
-    mults.p2;
+    valorTotalEl.value =
+      valorSalvo;
 
-  mult1Perda.value=
-    mults.p1;
-
-  mult2Vitorias.value=
-    mults.v2;
+  }
 
 
   /*
-   * Recupera o valor da próxima aposta.
+   * Saldo inicial sempre com 2 casas.
    */
+  saldoInicialEl.value =
+    Number(saldoInicial).toFixed(2);
 
-  valorTotalEl.value=
-    localStorage.getItem(KEY_VALOR_TOTAL)||'';
+
+  mult2Perdas.value =
+    mults.p2;
+
+  mult1Perda.value =
+    mults.p1;
+
+  mult2Vitorias.value =
+    mults.v2;
 
 
   atualizarLimitePerdas();
@@ -800,81 +828,90 @@ function load(){
 }
 
 
-
-/* RENDER */
+/* ========================================================= */
+/* RENDERIZAR */
+/* ========================================================= */
 
 function render(){
 
-  const totalHist=
+  const totalHist =
     history.reduce(
-      (s,i)=>s+i.resultado,
+      (s,i) =>
+        s + i.resultado,
       0
     );
 
 
   /*
-   * HISTÓRICO ACUMULADO
+   * Histórico acumulado.
    */
-
-  histAcumuladoEl.value=
-    'R$ '+fmt(totalHist);
+  histAcumuladoEl.value =
+    'R$ ' + fmt(totalHist);
 
 
   /*
-   * SALDO ATUAL
+   * Saldo atual.
    */
-
-  saldoAtualEl.value=
-    'R$ '+fmt(
-      saldoInicial+totalHist
+  saldoAtualEl.value =
+    'R$ ' +
+    fmt(
+      saldoInicial +
+      totalHist
     );
 
 
   /*
-   * PERCENTUAL DO HISTÓRICO
-   *
-   * lucro/prejuízo ÷ saldo inicial × 100
+   * Percentual que o histórico
+   * representa em relação ao saldo inicial.
    */
+  let percentualInicial = 0;
 
-  let percentual=0;
 
-  if(saldoInicial!==0){
+  if(saldoInicial !== 0){
 
-    percentual=
-      (totalHist/saldoInicial)*100;
+    percentualInicial =
+      (totalHist / saldoInicial) *
+      100;
 
   }
 
 
-  histPercentual.textContent=
-    `${percentual>=0?'+':''}${percentual.toFixed(2).replace('.',',')}% do saldo inicial`;
+  histPercentualEl.value =
+    (percentualInicial >= 0 ? '+' : '') +
+    percentualInicial.toFixed(2) +
+    '%';
 
 
   /*
-   * HISTÓRICO DA APOSTA
+   * Histórico das apostas.
    */
-
-  histTbody.innerHTML='';
+  histTbody.innerHTML = '';
 
 
   history.forEach((it,i)=>{
 
-    const tr=
+    const tr =
       document.createElement('tr');
 
 
-    tr.className=
-      it.resultado>=0
-      ?'profit'
-      :'loss';
+    tr.className =
+      it.resultado >= 0
+        ? 'profit'
+        : 'loss';
 
 
-    tr.innerHTML=
+    tr.innerHTML =
       `<td>${i+1}</td>
        <td>${it.data}</td>
        <td>R$ ${fmt(it.valor)}</td>
-       <td>${it.resultado>=0?'+':'-'}R$ ${fmt(Math.abs(it.resultado))}</td>
-       <td>${it.percent>=0?'+':'-'}${Math.abs(it.percent).toFixed(2)}%</td>`;
+       <td>
+         ${it.resultado>=0?'+':'-'}
+         R$ ${fmt(Math.abs(it.resultado))}
+       </td>
+       <td>
+         ${it.percent>=0?'+':'-'}
+         ${Math.abs(it.percent).toFixed(2)}%
+       </td>`;
 
 
     histTbody.appendChild(tr);
@@ -884,27 +921,32 @@ function render(){
 }
 
 
-
+/* ========================================================= */
 /* BOTÃO RESETAR APOSTA */
+/* ========================================================= */
 
 function atualizarBotaoResetAposta(){
 
-  btnResetAposta.disabled=
-    undoStates.length===0;
+  btnResetAposta.disabled =
+    (undoStates.length === 0);
 
 
-  if(undoStates.length===0){
+  if(
+    undoStates.length === 0
+  ){
 
-    btnResetAposta.style.opacity='0.5';
+    btnResetAposta.style.opacity =
+      '0.5';
 
-    btnResetAposta.style.cursor=
+    btnResetAposta.style.cursor =
       'not-allowed';
 
   }else{
 
-    btnResetAposta.style.opacity='1';
+    btnResetAposta.style.opacity =
+      '1';
 
-    btnResetAposta.style.cursor=
+    btnResetAposta.style.cursor =
       'pointer';
 
   }
@@ -912,24 +954,24 @@ function atualizarBotaoResetAposta(){
 }
 
 
-
+/* ========================================================= */
 /* SALDO INICIAL */
+/* ========================================================= */
 
 saldoInicialEl.addEventListener(
   'change',
   ()=>{
 
-    saldoInicial=
+    saldoInicial =
       parseFloat(
         saldoInicialEl.value
-      )||0;
+      ) || 0;
 
 
     /*
-     * Mantém 2 casas.
+     * Força 2 casas decimais.
      */
-
-    saldoInicialEl.value=
+    saldoInicialEl.value =
       saldoInicial.toFixed(2);
 
 
@@ -941,29 +983,29 @@ saldoInicialEl.addEventListener(
 );
 
 
+/* ========================================================= */
+/* VALOR TOTAL DA APOSTA */
+/* ========================================================= */
 
 /*
- * VALOR TOTAL A APOSTAR
- *
- * Salva imediatamente quando alterado
- * manualmente.
+ * NOVO:
+ * Sempre que o usuário alterar manualmente
+ * o valor da próxima aposta, ele é salvo.
  */
 
 valorTotalEl.addEventListener(
   'change',
   ()=>{
 
-    localStorage.setItem(
-      KEY_VALOR_TOTAL,
-      valorTotalEl.value
-    );
+    save();
 
   }
 );
 
 
-
+/* ========================================================= */
 /* MULTIPLICADORES */
+/* ========================================================= */
 
 [
   mult2Perdas,
@@ -975,22 +1017,22 @@ valorTotalEl.addEventListener(
     'change',
     ()=>{
 
-      mults.p2=
+      mults.p2 =
         parseFloat(
           mult2Perdas.value
-        )||1;
+        ) || 1;
 
 
-      mults.p1=
+      mults.p1 =
         parseFloat(
           mult1Perda.value
-        )||1;
+        ) || 1;
 
 
-      mults.v2=
+      mults.v2 =
         parseFloat(
           mult2Vitorias.value
-        )||1;
+        ) || 1;
 
 
       save();
@@ -1001,38 +1043,42 @@ valorTotalEl.addEventListener(
 });
 
 
-
+/* ========================================================= */
 /* LIMITE DE PERDAS */
+/* ========================================================= */
 
 function atualizarLimitePerdas(){
 
-  if(modoUnicoEl.checked){
+  if(
+    modoUnicoEl.checked
+  ){
 
-    qtdPerdidasEl.max=1;
+    qtdPerdidasEl.max = 1;
 
-    qtdPerdidasNota.textContent=
+    qtdPerdidasNota.textContent =
       '0 ou 1';
 
 
     if(
-      parseInt(qtdPerdidasEl.value)>1
+      parseInt(
+        qtdPerdidasEl.value
+      ) > 1
     ){
 
-      qtdPerdidasEl.value=1;
+      qtdPerdidasEl.value = 1;
 
     }
 
   }else{
 
-    qtdPerdidasEl.max=2;
+    qtdPerdidasEl.max = 2;
 
-    qtdPerdidasNota.textContent=
+    qtdPerdidasNota.textContent =
       '0, 1 ou 2';
 
   }
 
 }
-
 
 
 modoUnicoEl.addEventListener(
@@ -1045,32 +1091,40 @@ modoUnicoEl.addEventListener(
 );
 
 
-
-/* CÁLCULO */
+/* ========================================================= */
+/* FUNÇÃO CALCULAR */
+/* ========================================================= */
 
 function calcular(){
 
-  const o1=
-    parseFloat(oddAEl.value);
+  const o1 =
+    parseFloat(
+      oddAEl.value
+    );
 
-  const o2=
-    parseFloat(oddBEl.value);
+  const o2 =
+    parseFloat(
+      oddBEl.value
+    );
 
-  const T=
-    parseFloat(valorTotalEl.value);
+  const T =
+    parseFloat(
+      valorTotalEl.value
+    );
 
-  const unico=
+  const unico =
     modoUnicoEl.checked;
 
 
-
-  /*
-   * APOSTA ÚNICA
-   */
+  /* ======================================================= */
+  /* APOSTA ÚNICA */
+  /* ======================================================= */
 
   if(unico){
 
-    if(!(o1>0 && T>0)){
+    if(
+      !(o1 > 0 && T > 0)
+    ){
 
       alert(
         'Preencha pelo menos a Odd 1 e o valor total.'
@@ -1081,41 +1135,27 @@ function calcular(){
     }
 
 
-    const A1=T;
+    const A1 = T;
 
-    const A2=0;
+    const A2 = 0;
 
-    const R=A1*o1;
+    const R =
+      A1 * o1;
 
-    const profit1=
-      R-A1;
+    const profit1 =
+      R - A1;
 
 
-    return{
+    return {
 
       o1,
-
       o2:0,
-
       T,
-
       A1,
-
       A2,
-
       R,
-
       profit1,
-
       profitBoth:profit1,
-
-      /*
-       * Retorno total
-       */
-      return1:R,
-
-      returnBoth:R,
-
       unico:true
 
     };
@@ -1123,12 +1163,15 @@ function calcular(){
   }
 
 
+  /* ======================================================= */
+  /* MODO NORMAL */
+  /* ======================================================= */
 
-  /*
-   * DUAS APOSTAS
-   */
-
-  if(!(o1>0&&o2>0&&T>0)){
+  if(
+    !(o1 > 0 &&
+      o2 > 0 &&
+      T > 0)
+  ){
 
     alert(
       'Preencha ambas as odds e o valor total.'
@@ -1139,63 +1182,56 @@ function calcular(){
   }
 
 
+  const inv1 =
+    1 / o1;
 
-  const inv1=1/o1;
+  const inv2 =
+    1 / o2;
 
-  const inv2=1/o2;
-
-  const sumInv=
-    inv1+inv2;
-
-
-  const A1=
-    (T/o1)/sumInv;
-
-  const A2=
-    (T/o2)/sumInv;
-
-  const R=
-    T/sumInv;
+  const sumInv =
+    inv1 + inv2;
 
 
-  const ret1=R;
-
-  const profit1=
-    ret1-T;
-
-
-  const retBoth=
-    A1*o1+A2*o2;
-
-  const profitBoth=
-    retBoth-T;
+  const A1 =
+    (T / o1) /
+    sumInv;
 
 
-  return{
+  const A2 =
+    (T / o2) /
+    sumInv;
+
+
+  const R =
+    T / sumInv;
+
+
+  const ret1 =
+    R;
+
+  const profit1 =
+    ret1 - T;
+
+
+  const retBoth =
+    A1 * o1 +
+    A2 * o2;
+
+
+  const profitBoth =
+    retBoth - T;
+
+
+  return {
 
     o1,
-
     o2,
-
     T,
-
     A1,
-
     A2,
-
     R,
-
     profit1,
-
     profitBoth,
-
-    /*
-     * Retornos totais
-     */
-    return1:ret1,
-
-    returnBoth:retBoth,
-
     unico:false
 
   };
@@ -1203,19 +1239,58 @@ function calcular(){
 }
 
 
+/* ========================================================= */
+/* FORMATAR RESULTADO */
+/* ========================================================= */
 
-/* CALCULAR DISTRIBUIÇÃO */
+function formatarResultado(
+  retorno,
+  lucro
+){
+
+  const classe =
+    lucro > 0
+      ? 'retorno-positivo'
+      : lucro < 0
+        ? 'retorno-negativo'
+        : 'retorno-neutro';
+
+
+  const sinalLucro =
+    lucro > 0
+      ? '+'
+      : lucro < 0
+        ? '-'
+        : '';
+
+
+  return `
+    <div>
+      Retorno: R$ ${fmt(retorno)}
+    </div>
+
+    <div class="${classe}">
+      ${sinalLucro}
+      R$ ${fmt(Math.abs(lucro))}
+    </div>
+  `;
+
+}
+
+
+/* ========================================================= */
+/* BOTÃO CALCULAR DISTRIBUIÇÃO */
+/* ========================================================= */
 
 document.getElementById(
   'btnCalcular'
-).onclick=()=>{
+).onclick = ()=>{
 
-  const r=
+  const r =
     calcular();
 
 
   if(!r)return;
-
 
 
   /*
@@ -1224,120 +1299,87 @@ document.getElementById(
 
   if(r.unico){
 
-    distInfo.innerHTML=
-      `Stake único: R$ ${fmt(r.A1)} (odd ${r.o1})`;
+    distInfo.innerHTML =
+      `Stake único: R$ ${fmt(r.A1)}
+       (odd ${r.o1})`;
 
   }else{
 
-    distInfo.innerHTML=
-      `Stake 1: R$ ${fmt(r.A1)} (odd ${r.o1})<br>
-       Stake 2: R$ ${fmt(r.A2)} (odd ${r.o2})`;
+    distInfo.innerHTML =
+      `Stake 1: R$ ${fmt(r.A1)}
+       (odd ${r.o1})<br>
+       Stake 2: R$ ${fmt(r.A2)}
+       (odd ${r.o2})`;
 
   }
 
 
-
   /*
-   * FUNÇÃO PARA MOSTRAR
-   * LUCRO/PREJUÍZO
+   * 1 ACERTO
+   *
+   * Retorno = valor total recebido.
+   * Lucro/prejuízo = retorno - valor apostado.
    */
 
-  function resultadoHTML(profit){
-
-    if(profit>=0){
-
-      return `
-        <span class="result-profit">
-          Lucro: +R$ ${fmt(profit)}
-        </span>
-      `;
-
-    }else{
-
-      return `
-        <span class="result-loss">
-          Prejuízo: -R$ ${fmt(Math.abs(profit))}
-        </span>
-      `;
-
-    }
-
-  }
-
+  oneWin.innerHTML =
+    formatarResultado(
+      r.R,
+      r.profit1
+    );
 
 
   /*
-   * RETORNO DE 1 ACERTO
+   * 2 ACERTOS
+   *
+   * Retorno = valor total recebido.
+   * Lucro/prejuízo = retorno - valor apostado.
    */
 
-  oneWin.innerHTML=`
-
-    <div class="retorno-total">
-      Retorno total: R$ ${fmt(r.return1)}
-    </div>
-
-    <div>
-      ${resultadoHTML(r.profit1)}
-    </div>
-
-  `;
-
-
-
-  /*
-   * RETORNO DE 2 ACERTOS
-   */
-
-  bothWin.innerHTML=`
-
-    <div class="retorno-total">
-      Retorno total: R$ ${fmt(r.returnBoth)}
-    </div>
-
-    <div>
-      ${resultadoHTML(r.profitBoth)}
-    </div>
-
-  `;
+  bothWin.innerHTML =
+    formatarResultado(
+      r.unico
+        ? r.R
+        : r.A1*r.o1 + r.A2*r.o2,
+      r.profitBoth
+    );
 
 };
 
 
-
+/* ========================================================= */
 /* APOSTA CONCLUÍDA */
+/* ========================================================= */
 
 document.getElementById(
   'btnConcluir'
-).onclick=()=>{
+).onclick = ()=>{
 
-  const r=
+  const r =
     calcular();
 
 
   if(!r)return;
 
 
-  let lost=
+  let lost =
     parseInt(
       qtdPerdidasEl.value
-    )||0;
+    ) || 0;
 
 
-
-  /*
-   * APOSTA ÚNICA
-   */
+  /* ======================================================= */
+  /* APOSTA ÚNICA */
+  /* ======================================================= */
 
   if(r.unico){
 
-    if(lost>1){
+    if(lost > 1){
 
       alert(
         'No modo Aposta única, só pode haver 0 ou 1 aposta perdida.'
       );
 
-
-      qtdPerdidasEl.value=1;
+      qtdPerdidasEl.value = 1;
 
       return;
 
@@ -1346,351 +1388,8 @@ document.getElementById(
   }
 
 
-
-  /*
-   * SALVA ESTADO ANTERIOR
-   */
-
-  undoStates.push({
-
-    history:
-      JSON.parse(
-        JSON.stringify(history)
-      ),
-
-    valorTotal:
-      valorTotalEl.value,
-
-    oddA:
-      oddAEl.value,
-
-    oddB:
-      oddBEl.value,
-
-    qtdPerdidas:
-      qtdPerdidasEl.value,
-
-    modoUnico:
-      modoUnicoEl.checked,
-
-    distInfo:
-      distInfo.innerHTML,
-
-    oneWin:
-      oneWin.innerHTML,
-
-    bothWin:
-      bothWin.innerHTML
-
-  });
-
-
-
-  let result=0;
-
-
-
-  /*
-   * RESULTADO DA APOSTA ÚNICA
-   */
-
-  if(r.unico){
-
-    if(lost===1){
-
-      result=-r.T;
-
-    }else{
-
-      result=r.profit1;
-
-    }
-
-  }else{
-
-
-    /*
-     * DUAS APOSTAS
-     */
-
-    if(lost===2)
-      result=-r.T;
-
-
-    if(lost===1)
-      result=r.profit1;
-
-
-    if(lost===0)
-      result=r.profitBoth;
-
-  }
-
-
-
-  const perc=
-    (result/r.T)*100;
-
-
-
-  history.push({
-
-    data:now(),
-
-    valor:r.T,
-
-    resultado:
-      +result.toFixed(2),
-
-    percent:
-      +perc.toFixed(2)
-
-  });
-
-
-
-  /*
-   * MULTIPLICADORES
-   */
-
-  let mult=1;
-
-
-  if(lost===2)
-    mult=mults.p2;
-
-  else if(lost===1)
-    mult=mults.p1;
-
-  else
-    mult=mults.v2;
-
-
-
-  let baseValor=r.T;
-
-
-
-  if(history.length>=2){
-
-    const ultima=
-      history[
-        history.length-1
-      ];
-
-
-    const penultima=
-      history[
-        history.length-2
-      ];
-
-
-    if(
-      ultima.resultado>0 &&
-      penultima.resultado<0
-    ){
-
-      const ultimaVencedora=
-        [...history]
-        .slice(
-          0,
-          history.length-1
-        )
-        .reverse()
-        .find(
-          h=>h.resultado>0
-        );
-
-
-      baseValor=
-        ultimaVencedora
-        ?ultimaVencedora.valor
-        :history[0].valor;
-
-    }
-
-  }
-
-
-
-  /*
-   * PRÓXIMA APOSTA
-   */
-
-  valorTotalEl.value=
-    (baseValor*mult).toFixed(2);
-
-
-
-  /*
-   * SALVA O NOVO VALOR
-   */
-
-  localStorage.setItem(
-    KEY_VALOR_TOTAL,
-    valorTotalEl.value
-  );
-
-
-
-  /*
-   * LIMPA AS ODDS
-   */
-
-  oddAEl.value='';
-
-  oddBEl.value='';
-
-
-
-  render();
-
-  save();
-
-  atualizarBotaoResetAposta();
-
-};
-
-
-
-/* RESETAR APOSTA */
-
-btnResetAposta.onclick=()=>{
-
-  if(undoStates.length===0){
-
-    alert(
-      'Não existe nenhuma aposta concluída para resetar.'
-    );
-
-    return;
-
-  }
-
-
-
-  if(!confirm(
-    'Resetar a última aposta e voltar ao estado anterior à conclusão?'
-  )){
-
-    return;
-
-  }
-
-
-
-  const estadoAnterior=
-    undoStates.pop();
-
-
-
-  /*
-   * HISTÓRICO
-   */
-
-  history=
-    JSON.parse(
-      JSON.stringify(
-        estadoAnterior.history
-      )
-    );
-
-
-
-  /*
-   * CAMPOS
-   */
-
-  valorTotalEl.value=
-    estadoAnterior.valorTotal;
-
-  oddAEl.value=
-    estadoAnterior.oddA;
-
-  oddBEl.value=
-    estadoAnterior.oddB;
-
-  qtdPerdidasEl.value=
-    estadoAnterior.qtdPerdidas;
-
-  modoUnicoEl.checked=
-    estadoAnterior.modoUnico;
-
-
-
-  /*
-   * RESULTADOS
-   */
-
-  distInfo.innerHTML=
-    estadoAnterior.distInfo;
-
-  oneWin.innerHTML=
-    estadoAnterior.oneWin;
-
-  bothWin.innerHTML=
-    estadoAnterior.bothWin;
-
-
-
-  atualizarLimitePerdas();
-
-
-
-  /*
-   * SALVA VALOR RESTAURADO
-   */
-
-  localStorage.setItem(
-    KEY_VALOR_TOTAL,
-    valorTotalEl.value
-  );
-
-
-
-  render();
-
-  save();
-
-  atualizarBotaoResetAposta();
-
-};
-
-
-
-/* RESETAR HISTÓRICO */
-
-document.getElementById(
-  'btnResetHist'
-).onclick=()=>{
-
-  if(confirm(
-    'Apagar todo histórico?'
-  )){
-
-    history=[];
-
-    undoStates=[];
-
-    save();
-
-    render();
-
-    atualizarBotaoResetAposta();
-
-  }
-
-};
-
-
-
-/* INICIALIZAÇÃO */
-
-load();
-
-
-})();
-</script>
-
-</body>
-</html>
+  /* ======================================================= */
+  /* SALVAR ESTADO ANTERIOR */
+  /* ======================================================= */
+
+  undoStates
